@@ -10,6 +10,7 @@ import inquirer from 'inquirer';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { SignJWT } from 'jose';
 import {
   colors,
   ratLogoMini,
@@ -163,15 +164,35 @@ export const loginCommand = new Command('login')
       // In real implementation, would call auth API
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
+      // Generate user data
+      const userId = `user_${Date.now()}`;
+      const tenantId = 'tenant_123';
+      
+      // Create a proper JWT token
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || 'hauba-dev-secret-change-in-production'
+      );
+      
+      const token = await new SignJWT({
+        sub: userId,
+        email: answers.email,
+        tenantId: tenantId,
+        permissions: ['read', 'write'],
+      })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('7d')
+        .sign(secret);
+
       // Simulate successful auth
       const auth: AuthConfig = {
-        token: `hauba_${Buffer.from(answers.email).toString('base64')}_${Date.now()}`,
+        token: token,
         refreshToken: `refresh_${Date.now()}`,
         user: {
-          id: `user_${Date.now()}`,
+          id: userId,
           email: answers.email,
           name: answers.email.split('@')[0],
-          tenantId: 'tenant_123',
+          tenantId: tenantId,
           tenantName: 'My Workspace',
         },
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),

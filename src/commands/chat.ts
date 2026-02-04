@@ -38,13 +38,16 @@ interface ToolCall {
 }
 
 interface WSMessage {
-  type: 'message' | 'chunk' | 'tool_start' | 'tool_end' | 'error' | 'complete' | 'thinking' | 'welcome';
+  type: 'message' | 'chunk' | 'tool_start' | 'tool_end' | 'error' | 'complete' | 'thinking' | 'welcome' | 'authenticated';
   content?: string;
   tool?: ToolCall;
   error?: string;
   message?: string; // Error message from gateway
   code?: string; // Error code from gateway
   messageId?: string;
+  tenantId?: string;
+  userId?: string;
+  permissions?: string[];
 }
 
 interface AuthConfig {
@@ -289,7 +292,10 @@ class ChatClient {
 
           this.ws.onopen = () => {
             this.reconnectAttempts = 0;
-            resolve();
+            // Don't resolve immediately - wait for welcome message
+            if (!this.authToken) {
+              resolve(); // No auth needed, resolve immediately
+            }
           };
 
           this.ws.onerror = (error: Error) => {
@@ -308,6 +314,46 @@ class ChatClient {
           this.ws.onmessage = (event: { data: string }) => {
             try {
               const message = JSON.parse(event.data) as WSMessage;
+              
+              // Handle welcome message - send auth if we have a token
+              if (message.type === 'welcome' && this.authToken) {
+                const authMessage = {
+                  type: 'authenticate',
+                  token: this.authToken
+                };
+                this.ws!.send(JSON.stringify(authMessage));
+                // Don't resolve yet - wait for authenticated response
+                return;
+              }
+              
+              // Handle authentication success
+              if (message.type === 'authenticated') {
+                resolve(); // Now we're authenticated
+                return;
+              }
+              
+              // Handle authentication errors during connection
+              if (message.type === 'error' && !this.onMessage) {
+                const errorMsg = message.message || message.error || 'Authentication failed';
+                
+                if (message.code === 'AUTHENTICATION_FAILED') {
+                  console.log(box.error('AUTHENTICATION FAILED', [
+                    '',
+                    'Your session token has expired or is invalid.',
+                    '',
+                    'Please login again:',
+                    `  ${colors.primary('hauba login')}`,
+                    '',
+                    'Or use the web dashboard:',
+                    `  ${colors.accent('https://app.hauba.tech')}`,
+                    ''
+                  ]));
+                }
+                
+                reject(new Error(errorMsg));
+                return;
+              }
+              
               if (this.onMessage) {
                 this.onMessage(message);
               }
@@ -427,7 +473,6 @@ class ChatClient {
         persona: this.currentPersona,
         stream: this.options.stream,
         history: this.messageHistory.slice(-10), // Send last 10 messages for context
-        ...(this.authToken && { token: this.authToken }),
       };
 
       this.ws.send(JSON.stringify(payload));
