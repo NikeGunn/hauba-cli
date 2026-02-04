@@ -85,7 +85,7 @@ ${colors.primary('    ║')}      ${colors.textDim('◢█◣')}  ${colors.dim('
 ${colors.primary('    ║')}      ${colors.textDim('◥█◤')}  ${colors.dim('◥')}${colors.muted('█')}${colors.dim('◤')}     ${colors.secondary('⟨ AI AGENT PLATFORM ⟩')}       ${colors.primary('║')}
 ${colors.primary('    ║')}                                                     ${colors.primary('║')}
 ${colors.primary('    ║')}   ${colors.glow('▸')} ${colors.textLight('Smart Agents')}  ${colors.glow('▸')} ${colors.textLight('Multi-Channel')}  ${colors.glow('▸')} ${colors.textLight('Nepal-Made')}   ${colors.primary('║')}
-${colors.primary('    ║')}${colors.gradient3('█')}${colors.gradient2('▓')}${colors.gradient1('▒')}${colors.dim('░')}                             ${colors.muted('v1.1.0')}                ${colors.primary('║')}
+${colors.primary('    ║')}${colors.gradient3('█')}${colors.gradient2('▓')}${colors.gradient1('▒')}${colors.dim('░')}                             ${colors.muted('v1.2.2')}                ${colors.primary('║')}
 ${colors.primary('    ╚═══════════════════════════════════════════════════════╝')}
 `;
 
@@ -101,7 +101,7 @@ ${colors.primary('    |')}      ${colors.textDim('/|\\')}  ${colors.dim('/')}${c
 ${colors.primary('    |')}      ${colors.textDim('\\|/')}  ${colors.dim('\\')}${colors.muted('|')}${colors.dim('/')}     ${colors.secondary('< AI AGENT PLATFORM >')}     ${colors.primary('|')}
 ${colors.primary('    |')}                                                       ${colors.primary('|')}
 ${colors.primary('    |')}   ${colors.glow('>')} ${colors.textLight('Smart Agents')}  ${colors.glow('>')} ${colors.textLight('Multi-Channel')}  ${colors.glow('>')} ${colors.textLight('Nepal')}  ${colors.primary('|')}
-${colors.primary('    |')}                               ${colors.muted('v1.1.0')}                  ${colors.primary('|')}
+${colors.primary('    |')}                               ${colors.muted('v1.2.2')}                  ${colors.primary('|')}
 ${colors.primary('    +-------------------------------------------------------+')}
 `;
 

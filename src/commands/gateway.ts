@@ -275,7 +275,7 @@ async function runGatewayForeground(config: GatewayConfig): Promise<void> {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       name: 'Hauba Gateway',
-      version: '1.1.0',
+      version: '1.2.2',
       endpoints: ['/health', '/webhook', '/ws'],
     }));
   });

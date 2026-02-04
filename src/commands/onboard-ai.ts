@@ -311,7 +311,7 @@ class ConversationEngine {
 
       // Save config
       const config = {
-        version: '1.1.0',
+        version: '1.2.2',
         userName: this.state.userName,
         purpose: this.state.projectPurpose,
         channels: this.state.channels,

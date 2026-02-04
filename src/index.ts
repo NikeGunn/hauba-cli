@@ -93,7 +93,7 @@ ${section.header('LEARN MORE')}
 program
   .name('hauba')
   .description('HAUBA - The First Nepalese AI Employee')
-  .version('1.1.0', '-v, --version', 'Show CLI version')
+  .version('1.2.2', '-v, --version', 'Show CLI version')
   .addHelpText('beforeAll', ratLogo)
   .addHelpText('after', customHelp)
   .helpOption('-h, --help', 'Show help information')

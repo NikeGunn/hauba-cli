@@ -72,5 +72,6 @@
   "homepage": "https://hauba.tech",
   "bugs": {
     "url": "https://github.com/NikeGunn/hauba-cli/issues"
-  }
+  },
+  "packageManager": "pnpm@10.14.0"
 }

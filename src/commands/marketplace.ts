@@ -165,7 +165,7 @@ const SAMPLE_SKILLS: MarketplaceSkill[] = [
     name: 'Image Generator',
     description: 'Generate images using DALL-E, Stable Diffusion, or Midjourney',
     author: 'CreativeAI',
-    version: '1.1.0',
+    version: '1.2.2',
     category: 'Creative',
     downloads: 4500,
     rating: 4.6,

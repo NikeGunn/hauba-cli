@@ -38,11 +38,21 @@ interface ToolCall {
 }
 
 interface WSMessage {
-  type: 'message' | 'chunk' | 'tool_start' | 'tool_end' | 'error' | 'complete' | 'thinking';
+  type: 'message' | 'chunk' | 'tool_start' | 'tool_end' | 'error' | 'complete' | 'thinking' | 'welcome';
   content?: string;
   tool?: ToolCall;
   error?: string;
+  message?: string; // Error message from gateway
+  code?: string; // Error code from gateway
   messageId?: string;
+}
+
+interface AuthConfig {
+  token: string;
+  user?: {
+    email?: string;
+    name?: string;
+  };
 }
 
 // WebSocket type for optional ws module
@@ -61,6 +71,7 @@ type WebSocketInstance = {
 
 const HAUBA_DIR = path.join(os.homedir(), '.hauba');
 const CHAT_HISTORY_FILE = path.join(HAUBA_DIR, 'chat-history.json');
+const AUTH_FILE = path.join(HAUBA_DIR, 'auth.json');
 const MAX_HISTORY_MESSAGES = 100;
 
 // Get gateway URLs from config
@@ -71,6 +82,18 @@ const GATEWAY_HTTP_URL = config.gateway.url;
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
+
+/**
+ * Load authentication token
+ */
+async function loadAuth(): Promise<AuthConfig | null> {
+  try {
+    const content = await fs.readFile(AUTH_FILE, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Format timestamp for display
@@ -243,13 +266,16 @@ class ChatClient {
   private onMessage: ((msg: WSMessage) => void) | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
+  private authToken: string | null = null;
 
   constructor(
     private wsUrl: string,
-    private options: { agent?: string; persona?: string; stream: boolean }
+    private options: { agent?: string; persona?: string; stream: boolean },
+    authToken?: string | null
   ) {
     this.currentAgent = options.agent;
     this.currentPersona = options.persona;
+    this.authToken = authToken || null;
   }
 
   async connect(): Promise<void> {
@@ -365,7 +391,22 @@ class ChatClient {
             thinking.stop();
             console.log('');
             this.onMessage = null;
-            reject(new Error(msg.error || 'Unknown error'));
+            const errorMsg = msg.message || msg.error || 'Unknown error';
+            
+            if (msg.code === 'AUTHENTICATION_REQUIRED') {
+              console.log(box.warning('AUTHENTICATION REQUIRED', [
+                '',
+                'Please login to use chat functionality:',
+                '',
+                `  ${colors.primary('hauba login')}`,
+                '',
+                'Or use the web dashboard:',
+                `  ${colors.accent('https://app.hauba.tech')}`,
+                ''
+              ]));
+            }
+            
+            reject(new Error(errorMsg));
             break;
         }
       };
@@ -386,6 +427,7 @@ class ChatClient {
         persona: this.currentPersona,
         stream: this.options.stream,
         history: this.messageHistory.slice(-10), // Send last 10 messages for context
+        ...(this.authToken && { token: this.authToken }),
       };
 
       this.ws.send(JSON.stringify(payload));
@@ -480,11 +522,12 @@ async function runInteractiveChat(options: ChatOptions): Promise<void> {
   if (gatewayHealthy) {
     try {
       const wsUrl = getWebSocketUrl();
+      const auth = await loadAuth();
       client = new ChatClient(wsUrl, {
         agent: options.agent,
         persona: options.persona,
         stream: options.stream,
-      });
+      }, auth?.token);
       
       const s = spinner.create('Connecting to gateway...');
       s.start();
@@ -704,16 +747,17 @@ async function runSingleMessage(message: string, options: ChatOptions): Promise<
         // Try WebSocket for streaming
         try {
           const wsUrl = getWebSocketUrl();
+          const auth = await loadAuth();
           const client = new ChatClient(wsUrl, {
             agent: options.agent,
             persona: options.persona,
             stream: options.stream,
-          });
+          }, auth?.token);
           await client.connect();
           thinking.stop();
           response = await client.send(message);
           client.close();
-        } catch {
+        } catch (wsError) {
           thinking.stop();
           response = await mockChat(message, options);
           displayAssistantMessage(response);

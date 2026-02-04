@@ -243,7 +243,7 @@ async function startDaemon(port: number = DEFAULT_DAEMON_PORT): Promise<{ succes
       pid: child.pid,
       startedAt: new Date().toISOString(),
       port,
-      version: '1.1.0',
+      version: '1.2.2',
       workDir: process.cwd(),
     };
     await fs.writeFile(DAEMON_PID_FILE, JSON.stringify(pidInfo, null, 2));
