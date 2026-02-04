@@ -69,7 +69,7 @@
     "type": "git",
     "url": "git+https://github.com/NikeGunn/hauba-cli.git"
   },
-  "homepage": "https://hauba.dev",
+  "homepage": "https://hauba.tech",
   "bugs": {
     "url": "https://github.com/NikeGunn/hauba-cli/issues"
   }
