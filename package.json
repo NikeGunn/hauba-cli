@@ -1,7 +1,7 @@
 {
   "name": "hauba",
-  "version": "1.0.0",
-  "description": "Hauba Platform CLI - Build and deploy AI agents",
+  "version": "1.1.1",
+  "description": "Hauba AI Agent Platform - The first Nepalese AI employee that actually works",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -12,7 +12,11 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "lint": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "clean": "node -e \"const fs = require('fs'); fs.rmSync('dist', { recursive: true, force: true });\"",
+    "prepare": "npm run build || true",
+    "prepack": "npm run clean && npm run build",
+    "prepublishOnly": "npm run build && npm run lint",
+    "postinstall": "node -e \"console.log('\\n\\x1b[35m✓ Hauba CLI installed!\\x1b[0m Run: \\x1b[36mhauba --help\\x1b[0m\\n')\" || true"
   },
   "keywords": [
     "hauba",
@@ -20,7 +24,13 @@
     "agents",
     "cli",
     "skills",
-    "automation"
+    "automation",
+    "whatsapp",
+    "telegram",
+    "slack",
+    "discord",
+    "chatbot",
+    "nepal"
   ],
   "author": "Hauba Team",
   "license": "MIT",
@@ -30,9 +40,18 @@
     "inquirer": "^9.2.0",
     "ora": "^8.0.0"
   },
+  "optionalDependencies": {
+    "@whiskeysockets/baileys": "^6.6.0",
+    "discord.js": "^14.14.0",
+    "grammy": "^1.21.0",
+    "qrcode-terminal": "^0.12.0",
+    "ws": "^8.16.0"
+  },
   "devDependencies": {
     "@types/inquirer": "^9.0.0",
     "@types/node": "^20.0.0",
+    "@types/ws": "^8.5.10",
+    "rimraf": "^5.0.5",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   },
@@ -41,10 +60,15 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "README.md"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/hauba/cli"
+    "url": "git+https://github.com/NikeGunn/hauba-cli.git"
+  },
+  "homepage": "https://hauba.dev",
+  "bugs": {
+    "url": "https://github.com/NikeGunn/hauba-cli/issues"
   }
 }
