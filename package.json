@@ -1,6 +1,6 @@
 {
   "name": "hauba",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Hauba AI Agent Platform - The first Nepalese AI employee that actually works",
   "type": "module",
   "main": "dist/index.js",

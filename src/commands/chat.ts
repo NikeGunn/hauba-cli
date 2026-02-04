@@ -6,6 +6,7 @@
 
 import { Command } from 'commander';
 import { colors, ratLogoMini, msg, section, box, spinner, symbols } from '../ui.js';
+import { getConfig, getEnvironmentDisplay } from '../config.js';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs/promises';
@@ -60,8 +61,12 @@ type WebSocketInstance = {
 
 const HAUBA_DIR = path.join(os.homedir(), '.hauba');
 const CHAT_HISTORY_FILE = path.join(HAUBA_DIR, 'chat-history.json');
-const DEFAULT_GATEWAY_PORT = 18789;
 const MAX_HISTORY_MESSAGES = 100;
+
+// Get gateway URLs from config
+const config = getConfig();
+const GATEWAY_WS_URL = config.gateway.wsUrl;
+const GATEWAY_HTTP_URL = config.gateway.url;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -79,17 +84,18 @@ function formatTime(date: Date): string {
 /**
  * Get the gateway WebSocket URL
  */
-function getWebSocketUrl(port: number = DEFAULT_GATEWAY_PORT): string {
-  return `ws://localhost:${port}/ws`;
+function getWebSocketUrl(): string {
+  return GATEWAY_WS_URL;
 }
 
 /**
  * Check if gateway is running
  */
-async function checkGatewayHealth(port: number = DEFAULT_GATEWAY_PORT): Promise<boolean> {
+async function checkGatewayHealth(): Promise<boolean> {
   try {
-    const response = await fetch(`http://localhost:${port}/health`, {
-      signal: AbortSignal.timeout(3000),
+    const healthUrl = `${GATEWAY_HTTP_URL}/health`;
+    const response = await fetch(healthUrl, {
+      signal: AbortSignal.timeout(5000),
     });
     return response.ok;
   } catch {
@@ -419,10 +425,10 @@ class ChatClient {
 async function mockChat(content: string, options: ChatOptions): Promise<string> {
   // This is a fallback when WebSocket isn't available
   // It makes an HTTP request instead
-  const port = DEFAULT_GATEWAY_PORT;
+  const gatewayUrl = GATEWAY_HTTP_URL;
   
   try {
-    const response = await fetch(`http://localhost:${port}/api/chat`, {
+    const response = await fetch(`${gatewayUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

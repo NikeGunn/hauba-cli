@@ -38,7 +38,7 @@ const CONFIG_FILE = path.join(HAUBA_DIR, 'config.json');
 const DAEMON_PID_FILE = path.join(HAUBA_DIR, 'daemon.pid');
 const GATEWAY_PID_FILE = path.join(HAUBA_DIR, 'gateway.pid');
 const DEFAULT_GATEWAY_PORT = 18789;
-const DEFAULT_DAEMON_PORT = 18790;
+const DEFAULT_DAEMON_PORT = 18790;  // Daemon health port
 const HEALTH_CHECK_TIMEOUT = 30000; // 30 seconds
 const HEALTH_CHECK_INTERVAL = 500; // 500ms
 
@@ -575,7 +575,9 @@ ${section.subheader('EXAMPLES')}
     if (servicesStarted) {
       console.log(box.success('HAUBA IS RUNNING', [
         '',
-        startGatewayService ? `Gateway:  ${colors.link(gatewayUrl)}` : '',
+        startGatewayService ? `Web UI:   ${colors.link(gatewayUrl)}` : '',
+        startGatewayService ? `WebSocket:  ${colors.link(`ws://localhost:${gatewayPort}/ws`)}` : '',
+        startGatewayService ? `Health:   ${colors.link(`http://localhost:${gatewayPort}/health`)}` : '',
         startDaemonService ? `Daemon:   ${colors.link(`http://localhost:${daemonPort}/health`)}` : '',
         '',
         `Logs:     ${colors.muted(path.join(HAUBA_DIR, '*.log'))}`,
