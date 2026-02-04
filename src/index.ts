@@ -1,7 +1,7 @@
 // ============================================================================
 // HAUBA CLI - Main Entry Point
 // File: tools/cli/src/index.ts
-// Professional, rat-themed design
+// The first Nepalese AI employee that actually works
 // ============================================================================
 
 import { Command } from 'commander';
@@ -12,7 +12,15 @@ import { loginCommand, logoutCommand, whoamiCommand } from './commands/login.js'
 import { deployCommand } from './commands/deploy.js';
 import { daemonCommand } from './commands/daemon.js';
 import { doctorCommand } from './commands/doctor.js';
-import { onboardCommand } from './commands/onboard.js';
+import { onboardAICommand, isFirstRun } from './commands/onboard-ai.js';
+import { channelsCommand } from './commands/channels.js';
+import { gatewayCommand } from './commands/gateway.js';
+import { updateCommand } from './commands/update.js';
+import { pairingCommand } from './commands/pairing.js';
+import { swarmCommand } from './commands/swarm.js';
+import { personaCommand } from './commands/persona.js';
+import { marketplaceCommand } from './commands/marketplace.js';
+import { versionCommand } from './commands/version.js';
 import { ratLogo, colors, msg, section, help, box } from './ui.js';
 
 // ============================================================================
@@ -31,36 +39,40 @@ ${colors.primary('  login')}                  Authenticate with Hauba
 ${colors.primary('  logout')}                 Sign out of Hauba
 ${colors.primary('  whoami')}                 Show current user info
 ${colors.primary('  deploy')}                 Deploy your agent to production
+
+${section.header('CONNECTIVITY')}
+
+${colors.primary('  channels')} ${colors.muted('<cmd>')}        Manage WhatsApp, Telegram, Slack, Discord
+${colors.primary('  gateway')} ${colors.muted('<cmd>')}         Manage the gateway server
+${colors.primary('  pairing')} ${colors.muted('<cmd>')}         Manage who can message your agent
+
+${section.header('MULTI-AGENT (UNIQUE)')}
+
+${colors.primary('  swarm')} ${colors.muted('<command>')}       Multi-agent orchestration
+${colors.primary('  persona')} ${colors.muted('<cmd>')}         Customize AI personality
+
+${section.header('MARKETPLACE')}
+
+${colors.primary('  marketplace')} ${colors.muted('<cmd>')}     Browse and install skills
 ${colors.primary('  daemon')} ${colors.muted('<command>')}      Manage background daemon
+
+${section.header('UTILITIES')}
+
 ${colors.primary('  doctor')}                 Run health diagnostics
-${colors.primary('  onboard')}                Interactive setup wizard
+${colors.primary('  onboard')}                AI-guided setup wizard
+${colors.primary('  update')}                 Update Hauba CLI
+${colors.primary('  version')} ${colors.muted('<cmd>')}         Manage package versioning & npm publishing
+${colors.primary('  config')} ${colors.muted('<cmd>')}          Manage configuration
 
 ${section.header('QUICK START')}
 
-${help.example('hauba onboard', 'Interactive setup wizard (recommended)')}
+${help.example('hauba onboard', 'AI-guided setup wizard (recommended for new users)')}
 
-${help.example('hauba login', 'Sign in to your Hauba account')}
+${help.example('hauba channels add whatsapp', 'Connect WhatsApp with QR code')}
 
-${help.example('hauba init my-agent', 'Create a new AI agent project')}
+${help.example('hauba skill generate', 'Create a skill using AI')}
 
-${help.example('hauba doctor', 'Check system health')}
-
-${section.header('DAEMON MANAGEMENT')}
-
-${help.example('hauba daemon start', 'Start the background daemon')}
-
-${help.example('hauba daemon status', 'Check daemon health')}
-
-${help.example('hauba daemon logs -f', 'Stream daemon logs')}
-
-${section.header('SKILL GENERATION')}
-
-${colors.muted('HAUBA uses a Bring-Your-Own-Key (BYOK) model for AI generation.')}
-${colors.muted('Configure your API key first:')}
-
-${help.example('hauba config set-key', 'Add your AI provider API key')}
-
-${colors.dim('Supported providers: Google AI (FREE), Anthropic, OpenAI')}
+${help.example('hauba swarm create "My Team"', 'Create a multi-agent swarm')}
 
 ${section.header('LEARN MORE')}
 
@@ -72,8 +84,8 @@ ${section.header('LEARN MORE')}
 
 program
   .name('hauba')
-  .description('HAUBA - AI Agent Platform CLI')
-  .version('1.0.0', '-v, --version', 'Show CLI version')
+  .description('HAUBA - The First Nepalese AI Employee')
+  .version('1.1.0', '-v, --version', 'Show CLI version')
   .addHelpText('beforeAll', ratLogo)
   .addHelpText('after', customHelp)
   .helpOption('-h, --help', 'Show help information')
@@ -83,32 +95,32 @@ program
 // REGISTER COMMANDS
 // ============================================================================
 
-// hauba init <project-name>
+// Core commands
 program.addCommand(initCommand);
-
-// hauba skill <subcommand>
 program.addCommand(skillCommand);
-
-// hauba login
 program.addCommand(loginCommand);
-
-// hauba logout
 program.addCommand(logoutCommand);
-
-// hauba whoami
 program.addCommand(whoamiCommand);
-
-// hauba deploy
 program.addCommand(deployCommand);
 
-// hauba daemon (Phase 5)
+// Connectivity commands (OpenClaw parity)
+program.addCommand(channelsCommand);
+program.addCommand(gatewayCommand);
+program.addCommand(pairingCommand);
+
+// Multi-agent commands (Unique to Hauba)
+program.addCommand(swarmCommand);
+program.addCommand(personaCommand);
+
+// Marketplace
+program.addCommand(marketplaceCommand);
+
+// System commands
 program.addCommand(daemonCommand);
-
-// hauba doctor (Phase 5)
 program.addCommand(doctorCommand);
-
-// hauba onboard (Phase 5)
-program.addCommand(onboardCommand);
+program.addCommand(onboardAICommand);
+program.addCommand(updateCommand);
+program.addCommand(versionCommand);
 
 // ============================================================================
 // CONFIG COMMAND (NEW - for API key management)
@@ -299,8 +311,30 @@ program.exitOverride((err) => {
 
 export async function run(argv: string[] = process.argv): Promise<void> {
   try {
-    // Show help if no command provided
+    // Check for first run - trigger AI onboarding
     if (argv.length <= 2) {
+      const firstRun = await isFirstRun();
+      if (firstRun) {
+        // First time user - start AI-guided onboarding
+        console.log(ratLogo);
+        console.log(box.simple([
+          '',
+          `${colors.accent('नमस्ते!')} Welcome to ${colors.primary.bold('HAUBA')}`,
+          '',
+          colors.muted('The first Nepalese AI employee that actually works.'),
+          '',
+          'Looks like this is your first time here.',
+          "Let's get you set up!",
+          '',
+        ], 52));
+        
+        // Small delay then start onboarding
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await onboardAICommand.parseAsync(['node', 'hauba', 'onboard']);
+        return;
+      }
+      
+      // Not first run - show help
       program.outputHelp();
       return;
     }
@@ -317,9 +351,6 @@ export async function run(argv: string[] = process.argv): Promise<void> {
   }
 }
 
-// Run if called directly
-if (process.argv[1]?.endsWith('index.js') || process.argv[1]?.includes('hauba')) {
-  run();
-}
+// Note: Do not auto-run here - bin/hauba.js handles it
 
 export { program };

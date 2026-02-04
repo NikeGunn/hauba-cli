@@ -16,7 +16,9 @@
     "prepare": "npm run build || true",
     "prepack": "npm run clean && npm run build",
     "prepublishOnly": "npm run build && npm run lint",
-    "postinstall": "node -e \"console.log('\\n\\x1b[35m✓ Hauba CLI installed!\\x1b[0m Run: \\x1b[36mhauba --help\\x1b[0m\\n')\" || true"
+    "postinstall": "node -e \"console.log('\\n\\x1b[35m✓ Hauba CLI installed!\\x1b[0m Run: \\x1b[36mhauba --help\\x1b[0m\\n')\" || true",
+    "hauba": "node bin/hauba.js",
+    "link": "npm link"
   },
   "keywords": [
     "hauba",
