@@ -173,10 +173,23 @@ async function loginWhatsApp(): Promise<boolean> {
     const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = baileys;
     const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
 
+    // Suppress Baileys verbose logging
+    const silentLogger = {
+      level: 'silent',
+      info: () => {},
+      debug: () => {},
+      warn: () => {},
+      error: () => {},
+      fatal: () => {},
+      trace: () => {},
+      child: () => silentLogger,
+    };
+
     const sock = makeWASocket({
       auth: state,
       printQRInTerminal: false,
       browser: ['Hauba AI', 'Chrome', '120.0.0'],
+      logger: silentLogger as any,
     });
 
     return new Promise((resolve) => {
@@ -734,11 +747,58 @@ channelsCommand
 channelsCommand
   .command('login <channel>')
   .description('Authenticate with a channel')
-  .action(async (channel: string) => {
-    // Alias for add
-    const addCmd = channelsCommand.commands.find(c => c.name() === 'add');
-    if (addCmd) {
-      await addCmd.parseAsync(['node', 'hauba', 'channels', 'add', channel]);
+  .action(async (channelType: string) => {
+    console.log(ratLogoMini);
+
+    const { default: inquirer } = await import('inquirer');
+
+    // Check if valid channel
+    if (!SUPPORTED_CHANNELS[channelType as keyof typeof SUPPORTED_CHANNELS]) {
+      msg.error(`Unknown channel: ${channelType}`);
+      msg.info(`Supported: ${Object.keys(SUPPORTED_CHANNELS).join(', ')}`);
+      process.exit(1);
+    }
+
+    // Check if already connected
+    const existing = await getChannel(channelType);
+    if (existing && existing.status === 'connected') {
+      const { overwrite } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'overwrite',
+          message: `${SUPPORTED_CHANNELS[channelType as keyof typeof SUPPORTED_CHANNELS].name} is already connected. Reconnect?`,
+          default: false,
+        },
+      ]);
+      if (!overwrite) return;
+    }
+
+    // Run appropriate login flow
+    let success = false;
+    switch (channelType) {
+      case 'whatsapp':
+        success = await loginWhatsApp();
+        break;
+      case 'telegram':
+        success = await loginTelegram();
+        break;
+      case 'slack':
+        success = await loginSlack();
+        break;
+      case 'discord':
+        success = await loginDiscord();
+        break;
+    }
+
+    if (success) {
+      console.log('\n' + box.success('CHANNEL CONNECTED', [
+        '',
+        `${SUPPORTED_CHANNELS[channelType as keyof typeof SUPPORTED_CHANNELS].name} is ready!`,
+        '',
+        `Start the daemon to begin receiving messages:`,
+        `${colors.primary('$ hauba daemon start')}`,
+        '',
+      ]));
     }
   });
 

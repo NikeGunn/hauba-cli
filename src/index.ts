@@ -21,6 +21,8 @@ import { swarmCommand } from './commands/swarm.js';
 import { personaCommand } from './commands/persona.js';
 import { marketplaceCommand } from './commands/marketplace.js';
 import { versionCommand } from './commands/version.js';
+import { startCommand } from './commands/start.js';
+import { chatCommand } from './commands/chat.js';
 import { ratLogo, colors, msg, section, help, box } from './ui.js';
 
 // ============================================================================
@@ -33,6 +35,8 @@ const program = new Command();
 const customHelp = `
 ${section.header('COMMANDS')}
 
+${colors.primary('  start')}                  Start Hauba and open browser
+${colors.primary('  chat')}                   Interactive AI chat in terminal
 ${colors.primary('  init')} ${colors.muted('<name>')}           Create a new Hauba project
 ${colors.primary('  skill')} ${colors.muted('<command>')}       Manage and generate skills
 ${colors.primary('  login')}                  Authenticate with Hauba
@@ -66,6 +70,10 @@ ${colors.primary('  config')} ${colors.muted('<cmd>')}          Manage configura
 
 ${section.header('QUICK START')}
 
+${help.example('hauba start', 'Start all services and open the dashboard')}
+
+${help.example('hauba chat', 'Interactive AI chat in your terminal')}
+
 ${help.example('hauba onboard', 'AI-guided setup wizard (recommended for new users)')}
 
 ${help.example('hauba channels add whatsapp', 'Connect WhatsApp with QR code')}
@@ -96,6 +104,8 @@ program
 // ============================================================================
 
 // Core commands
+program.addCommand(startCommand);
+program.addCommand(chatCommand);
 program.addCommand(initCommand);
 program.addCommand(skillCommand);
 program.addCommand(loginCommand);
